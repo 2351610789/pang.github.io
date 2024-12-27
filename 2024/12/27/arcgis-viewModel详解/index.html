@@ -1,0 +1,221 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>详解Arcgis js-SketchViewModel对象 | 前端技术</title><meta name="author" content="pz"><meta name="copyright" content="pz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="定义sketch.viewModel 是 ArcGIS JS API 中的一个核心对象，负责处理地图上的绘制、编辑、删除和取消等操作。它为用户提供了创建、更新和删除图形的功能，并能够处理用户与地图的交互，特别是在地图上绘制点、线、面等图形时。 SketchViewModel（通常通过 sketch.viewModel 实例化）是一个视图模型类，用于管理用户在地图上进行的绘制操作，提供了高度抽象的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解Arcgis js-SketchViewModel对象">
+<meta property="og:url" content="http://example.com/2024/12/27/arcgis-viewModel%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="前端技术">
+<meta property="og:description" content="定义sketch.viewModel 是 ArcGIS JS API 中的一个核心对象，负责处理地图上的绘制、编辑、删除和取消等操作。它为用户提供了创建、更新和删除图形的功能，并能够处理用户与地图的交互，特别是在地图上绘制点、线、面等图形时。 SketchViewModel（通常通过 sketch.viewModel 实例化）是一个视图模型类，用于管理用户在地图上进行的绘制操作，提供了高度抽象的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/tx2.jpg">
+<meta property="article:published_time" content="2024-12-27T12:01:10.000Z">
+<meta property="article:modified_time" content="2024-12-27T08:55:17.721Z">
+<meta property="article:author" content="pz">
+<meta property="article:tag" content="Arcgis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/tx2.jpg"><link rel="shortcut icon" href="/img/tx2.jpg"><link rel="canonical" href="http://example.com/2024/12/27/arcgis-viewModel%E8%AF%A6%E8%A7%A3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '详解Arcgis js-SketchViewModel对象',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/tx2.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/city-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">前端技术</span></a><a class="nav-page-title" href="/"><span class="site-name">详解Arcgis js-SketchViewModel对象</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">详解Arcgis js-SketchViewModel对象</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-27T12:01:10.000Z" title="发表于 2024-12-27 20:01:10">2024-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-27T08:55:17.721Z" title="更新于 2024-12-27 16:55:17">2024-12-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Arcgis-js/">Arcgis js</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p><code>sketch.viewModel</code> 是 ArcGIS JS API 中的一个核心对象，负责处理地图上的绘制、编辑、删除和取消等操作。它为用户提供了创建、更新和删除图形的功能，并能够处理用户与地图的交互，特别是在地图上绘制点、线、面等图形时。</p>
+<p><code>SketchViewModel</code>（通常通过 <code>sketch.viewModel</code> 实例化）是一个视图模型类，用于管理用户在地图上进行的绘制操作，提供了高度抽象的 API，能够简化用户绘制和编辑图形的过程。</p>
+<h1 id="基本功能"><a href="#基本功能" class="headerlink" title="基本功能"></a>基本功能</h1><ul>
+<li><strong>绘制图形</strong>：允许用户绘制各种图形（如点、线、多边形、矩形等）。</li>
+<li><strong>编辑图形</strong>：可以让用户修改已绘制的图形。</li>
+<li><strong>删除图形</strong>：支持删除地图上的图形。</li>
+<li><strong>取消操作</strong>：允许用户取消当前绘制或编辑的操作。</li>
+</ul>
+<h1 id="主要属性和方法"><a href="#主要属性和方法" class="headerlink" title="主要属性和方法"></a>主要属性和方法</h1><h4 id="基本属性"><a href="#基本属性" class="headerlink" title="基本属性"></a><strong>基本属性</strong></h4><ul>
+<li>**<code>view</code>**：必需的属性，指定 <code>SketchViewModel</code> 所关联的地图视图（<code>MapView</code> 或 <code>SceneView</code>）。</li>
+<li>**<code>layer</code>**：指定 <code>SketchViewModel</code> 使用的图层，通常是 <code>GraphicsLayer</code>，用于保存绘制的图形。</li>
+<li>**<code>create</code>**：定义当前绘制的图形类型（例如，点、线、多边形等）。</li>
+<li>**<code>update</code>**：用于编辑已绘制的图形。</li>
+</ul>
+<h4 id="2-主要方法"><a href="#2-主要方法" class="headerlink" title="2. 主要方法"></a>2. <strong>主要方法</strong></h4><ul>
+<li>**<code>create(geometryType, options)</code>**：开始一个新的绘制操作，<code>geometryType</code> 参数可以是 <code>&#39;point&#39;</code>、<code>&#39;polyline&#39;</code>、<code>&#39;polygon&#39;</code>、<code>&#39;rectangle&#39;</code> 等，<code>options</code> 可用于设置绘制时的一些自定义选项。</li>
+<li>**<code>update(graphic, updateOptions)</code>**：开始编辑一个已有的图形，<code>graphic</code> 是要编辑的图形，<code>updateOptions</code> 用于设置更新操作的选项。</li>
+<li>**<code>cancel()</code>**：取消当前的绘制或编辑操作。</li>
+<li>**<code>complete()</code>**：完成当前的绘制或编辑操作。</li>
+</ul>
+<h4 id="3-常见事件"><a href="#3-常见事件" class="headerlink" title="3. 常见事件"></a>3. <strong>常见事件</strong></h4><ul>
+<li>**<code>create</code>**：当用户创建一个新图形时触发。</li>
+<li>**<code>update</code>**：当用户编辑图形时触发。</li>
+<li>**<code>delete</code>**：当用户删除图形时触发。</li>
+<li>**<code>cancel</code>**：当用户取消当前操作时触发。</li>
+</ul>
+<h1 id="各个事件中的event对象"><a href="#各个事件中的event对象" class="headerlink" title="各个事件中的event对象"></a>各个事件中的event对象</h1><p>在 ArcGIS JS API 中，<code>SketchViewModel</code> 提供了多个事件，分别用于监听用户的图形创建、更新、删除等操作。这些事件触发时，都会传递一个 <code>event</code> 对象，该对象包含了与事件相关的各种信息，比如图形对象、事件的状态、所使用的工具类型等。理解 <code>event</code> 对象的结构对于正确地处理事件和实现交互逻辑至关重要。</p>
+<p>以下是 <code>create</code>、<code>update</code> 和 <code>delete</code> 事件中的 <code>event</code> 对象的详细说明：</p>
+<h3 id="create事件中的event对象"><a href="#create事件中的event对象" class="headerlink" title="create事件中的event对象"></a>create事件中的event对象</h3><p><code>create</code> 事件在用户绘制图形（如点、线、多边形等）时触发。<code>event</code> 对象包含关于新创建图形的详细信息。</p>
+<h4 id="event-对象的常见属性："><a href="#event-对象的常见属性：" class="headerlink" title="event 对象的常见属性："></a><code>event</code> 对象的常见属性：</h4><ul>
+<li>**<code>state</code>**：描述操作的状态（例如，<code>&quot;complete&quot;</code>、<code>&quot;active&quot;</code>、<code>&quot;cancel&quot;</code>）。<ul>
+<li><code>&quot;complete&quot;</code>：绘制操作完成，图形已经被添加到图层。</li>
+<li><code>&quot;active&quot;</code>：用户正在进行绘制操作，图形还在绘制过程中。</li>
+<li><code>&quot;cancel&quot;</code>：用户取消了当前的绘制操作，图形未被添加到图层。</li>
+</ul>
+</li>
+<li>**<code>tool</code>**：表示当前使用的绘制工具类型（如 <code>&quot;polygon&quot;</code>、<code>&quot;polyline&quot;</code>、<code>&quot;point&quot;</code>、<code>&quot;rectangle&quot;</code> 等）。这帮助区分用户使用的具体工具类型。</li>
+<li>**<code>graphic</code>**：当前操作中创建的图形对象。它是一个 <code>Graphic</code> 实例，包含用户绘制的图形及其属性（如几何形状、符号等）。</li>
+<li>**<code>graphics</code>**（在批量操作中）：如果是批量操作（例如一次性创建多个图形），则此属性包含一个图形对象的数组。</li>
+<li>**<code>toolEventInfo</code>**（可选）：包含有关工具事件的额外信息，通常用于与用户交互的工具类型相关的更多细节。</li>
+<li>**<code>aborted</code>**： 可以用来检查用户是否在图形创建过程中取消了操作（例如，用户按 <code>Esc</code> 键或者点击取消按钮）。</li>
+</ul>
+<h4 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sketchViewModel.<span class="title function_">on</span>(<span class="string">&quot;create&quot;</span>, <span class="keyword">function</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (event.<span class="property">state</span> === <span class="string">&quot;complete&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;图形创建完成：&quot;</span>, event.<span class="property">graphic</span>);  <span class="comment">// 输出创建的图形</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;使用的绘制工具：&quot;</span>, event.<span class="property">tool</span>);  <span class="comment">// 输出使用的绘制工具类型</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="update事件中的event对象"><a href="#update事件中的event对象" class="headerlink" title="update事件中的event对象"></a>update事件中的event对象</h3><p><code>update</code> 事件在用户编辑已存在的图形时触发（例如，拖动点、修改线条形状、调整多边形的边界等）。<code>event</code> 对象包含有关更新操作的详细信息。</p>
+<h4 id="event-对象的常见属性：-1"><a href="#event-对象的常见属性：-1" class="headerlink" title="event 对象的常见属性："></a><code>event</code> 对象的常见属性：</h4><ul>
+<li>**<code>state</code>**：描述操作的状态（例如，<code>&quot;complete&quot;</code>、<code>&quot;active&quot;</code>、<code>&quot;cancel&quot;</code>）。<ul>
+<li><code>&quot;complete&quot;</code>：编辑操作完成，图形已经更新。</li>
+<li><code>&quot;active&quot;</code>：用户正在进行图形编辑，操作还未完成。</li>
+<li><code>&quot;cancel&quot;</code>：用户取消了当前的编辑操作，图形没有改变。</li>
+</ul>
+</li>
+<li>**<code>tool</code>**：表示当前使用的编辑工具类型（如 <code>&quot;reshape&quot;</code>、<code>&quot;move&quot;</code> 等）。这有助于区分用户执行的编辑操作是改变形状、移动图形还是其他类型的编辑。</li>
+<li>**<code>graphics</code>**：一个图形对象的数组，包含正在编辑的所有图形。在编辑多个图形的情况下，这个数组会包含所有更新的图形。</li>
+<li>**<code>graphic</code>**：如果只有一个图形正在被编辑，则此属性包含被编辑的图形对象。</li>
+<li>**<code>toolEventInfo</code>**（可选）：与编辑工具事件相关的更多信息（例如，用户拖动的是哪个控制点、编辑的具体细节等）。</li>
+<li>**<code>aborted</code>**：可以用来检查用户是否取消了图形的编辑操作。</li>
+</ul>
+<h4 id="示例：-1"><a href="#示例：-1" class="headerlink" title="示例："></a>示例：</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sketchViewModel.<span class="title function_">on</span>(<span class="string">&quot;update&quot;</span>, <span class="keyword">function</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (event.<span class="property">state</span> === <span class="string">&quot;complete&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;图形更新完成：&quot;</span>, event.<span class="property">graphics</span>);  <span class="comment">// 输出更新后的图形</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;使用的编辑工具：&quot;</span>, event.<span class="property">tool</span>);  <span class="comment">// 输出编辑工具类型</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.<span class="property">state</span> === <span class="string">&quot;active&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;正在编辑图形...&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="delete-事件中的event对象"><a href="#delete-事件中的event对象" class="headerlink" title="delete 事件中的event对象"></a>delete 事件中的event对象</h3><p><code>delete</code> 事件在用户删除图形时触发，通常通过删除按钮或者键盘操作触发。<code>event</code> 对象包含删除操作的详细信息。</p>
+<h4 id="event-对象的常见属性：-2"><a href="#event-对象的常见属性：-2" class="headerlink" title="event 对象的常见属性："></a><code>event</code> 对象的常见属性：</h4><ul>
+<li>**<code>graphics</code>**：一个图形对象的数组，包含所有被删除的图形。如果是单个图形被删除，则该数组只包含一个图形对象。</li>
+<li>**<code>graphic</code>**（可选）：如果删除操作只涉及单个图形，则该属性直接引用被删除的图形对象。</li>
+<li>**<code>tool</code>**：表示触发删除操作的工具类型，通常为 <code>delete</code>，用于标识用户是通过删除工具删除的图形。</li>
+<li>**<code>state</code>**：表示删除操作的状态。通常为 <code>&quot;complete&quot;</code>，因为删除操作一旦触发即会立即完成。</li>
+<li>**<code>aborted</code>**：可以用来检查用户是否取消了图形的删除操作。</li>
+</ul>
+<h4 id="示例：-2"><a href="#示例：-2" class="headerlink" title="示例："></a>示例：</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sketchViewModel.<span class="title function_">on</span>(<span class="string">&quot;delete&quot;</span>, <span class="keyword">function</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;已删除图形：&quot;</span>, event.<span class="property">graphics</span>);  <span class="comment">// 输出删除的图形</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;删除操作使用的工具：&quot;</span>, event.<span class="property">tool</span>);  <span class="comment">// 输出触发删除操作的工具</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">pz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/12/27/arcgis-viewModel%E8%AF%A6%E8%A7%A3/">http://example.com/2024/12/27/arcgis-viewModel%E8%AF%A6%E8%A7%A3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">前端技术</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Arcgis/">Arcgis</a></div><div class="post-share"><div class="social-share" data-image="/img/tx2.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2024/12/25/JS-%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6/" title="JS-事件机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">JS-事件机制</div></div><div class="info-2"><div class="info-item-1">事件JavaScript和html之间的交互是通过事件实现的。事件就是用户或者浏览器自身执行的某种动作。响应某个事件的函数就叫做事件处理函数。 事件对象当事件被触发时，浏览器会创建一个事件对象，这个对象包含了与事件相关的信息，比如事件的类型，事件发生的位置等。事件对象会在事件处理函数中作为参数传递。常见的属性  event.target：事件源，即触发事件的元素。 event.type：事件类型（例如 “click”, “keydown” 等）。 event.preventDefault()：阻止事件的默认行为（例如，阻止表单提交、链接跳转等）。 event.stopPropagation()：阻止事件的冒泡，防止事件传递到父元素。  事件绑定内联绑定：内联绑定就是在DOM元素中直接绑定事件。 12&lt;!-- 在HTML中直接绑定点击事件 --&gt;&lt;button...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/tx2.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">pz</div><div class="author-info-description">前端技术</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-number">1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD"><span class="toc-number">2.</span> <span class="toc-text">基本功能</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%B1%9E%E6%80%A7%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">主要属性和方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%B1%9E%E6%80%A7"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">基本属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%B8%BB%E8%A6%81%E6%96%B9%E6%B3%95"><span class="toc-number">3.0.0.2.</span> <span class="toc-text">2. 主要方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%81%E4%BA%8B%E4%BB%B6"><span class="toc-number">3.0.0.3.</span> <span class="toc-text">3. 常见事件</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%84%E4%B8%AA%E4%BA%8B%E4%BB%B6%E4%B8%AD%E7%9A%84event%E5%AF%B9%E8%B1%A1"><span class="toc-number">4.</span> <span class="toc-text">各个事件中的event对象</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#create%E4%BA%8B%E4%BB%B6%E4%B8%AD%E7%9A%84event%E5%AF%B9%E8%B1%A1"><span class="toc-number">4.0.1.</span> <span class="toc-text">create事件中的event对象</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#event-%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%B8%B8%E8%A7%81%E5%B1%9E%E6%80%A7%EF%BC%9A"><span class="toc-number">4.0.1.1.</span> <span class="toc-text">event 对象的常见属性：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-number">4.0.1.2.</span> <span class="toc-text">示例：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#update%E4%BA%8B%E4%BB%B6%E4%B8%AD%E7%9A%84event%E5%AF%B9%E8%B1%A1"><span class="toc-number">4.0.2.</span> <span class="toc-text">update事件中的event对象</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#event-%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%B8%B8%E8%A7%81%E5%B1%9E%E6%80%A7%EF%BC%9A-1"><span class="toc-number">4.0.2.1.</span> <span class="toc-text">event 对象的常见属性：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A-1"><span class="toc-number">4.0.2.2.</span> <span class="toc-text">示例：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#delete-%E4%BA%8B%E4%BB%B6%E4%B8%AD%E7%9A%84event%E5%AF%B9%E8%B1%A1"><span class="toc-number">4.0.3.</span> <span class="toc-text">delete 事件中的event对象</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#event-%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%B8%B8%E8%A7%81%E5%B1%9E%E6%80%A7%EF%BC%9A-2"><span class="toc-number">4.0.3.1.</span> <span class="toc-text">event 对象的常见属性：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A-2"><span class="toc-number">4.0.3.2.</span> <span class="toc-text">示例：</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/27/arcgis-viewModel%E8%AF%A6%E8%A7%A3/" title="详解Arcgis js-SketchViewModel对象">详解Arcgis js-SketchViewModel对象</a><time datetime="2024-12-27T12:01:10.000Z" title="发表于 2024-12-27 20:01:10">2024-12-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/25/JS-%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6/" title="JS-事件机制">JS-事件机制</a><time datetime="2024-12-25T14:04:25.000Z" title="发表于 2024-12-25 22:04:25">2024-12-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/25/JS-async%E4%B8%8Edefer/" title="async与defer的区别">async与defer的区别</a><time datetime="2024-12-25T12:01:10.000Z" title="发表于 2024-12-25 20:01:10">2024-12-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/18/hello-world/" title="Hello World">Hello World</a><time datetime="2024-12-18T14:23:47.674Z" title="发表于 2024-12-18 22:23:47">2024-12-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2024 By pz</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
